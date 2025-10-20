@@ -1,0 +1,15 @@
+{
+  "url": "https://books.toscrape.com/",
+  "test_sites": ["pixelscan.net/bot-check" ,"https://books.toscrape.com/", "https://webscraper.io/test-sites/e-commerce/allinone", "https://scrapeninja.net/scraper-sandbox"],
+  "debug": true,
+  "driver": "nodriver",
+  "actions": [
+    {
+      "type": "url",
+      "xpath": "//*[@id=\"default\"]/div/div/div/div/section/div[2]/ol",
+      "value": "https://pixelscan.net/bot-check",
+      "wait": 1,
+      "debug": true
+    }
+  ]
+}

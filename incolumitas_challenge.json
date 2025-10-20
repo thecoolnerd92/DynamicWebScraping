@@ -1,0 +1,62 @@
+{
+  "debug": true,
+  "driver": "nodriver",
+  "actions": [
+    {
+      "type": "url",
+      "xpath": "//*[@id='default']/div/div/div/div/section/div[2]/ol",
+      "value": "https://bot.incolumitas.com/",
+      "wait": 5,
+      "debug": true
+    },
+    {
+      "type": "input",
+      "xpath": "//*[@id='userNameField']/div/input",
+      "value": "not_bot_uname",
+      "wait": 3,
+      "debug": true
+    },
+    {
+      "type": "input",
+      "xpath": "//*[@id='emailField']/div/input",
+      "value": "testemail@gmail.com",
+      "wait": 3,
+      "debug": true
+    },
+    {
+      "type": "select",
+      "xpath": "//*[@id='formStuff']/div[3]/div/div/select",
+      "value": "I want all the Cookies",
+      "wait": 3,
+      "debug": true
+    },
+    {
+      "type": "click",
+      "xpath": "//*[@id=\"formStuff\"]/div[4]/div/label/input",
+      "value": "terms",
+      "wait": 5,
+      "debug": true
+    },
+    {
+      "type": "click",
+      "xpath": "//*[@id='smolCat']",
+      "value": "I like Cats",
+      "wait": 5,
+      "debug": true
+    },
+    {
+      "type": "click",
+      "xpath": "//*[@id='bigCat']",
+      "value": "I like big Cats",
+      "wait": 5,
+      "debug": true
+    },
+    {
+      "type": "click",
+      "xpath": "//*[@id='submit']",
+      "value": "POST",
+      "wait": 5,
+      "debug": true
+    }
+  ]
+}
