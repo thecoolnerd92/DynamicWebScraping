@@ -3,7 +3,6 @@ import glob
 import os.path
 import logging
 import datetime as dt
-import sys
 import asyncio
 # import time
 import random
@@ -42,23 +41,8 @@ MyDriver = drivers[config.get('driver', 'nodriver')]
 class CustomDriver(MyDriver):
     """This class abstracts away the external driver initialization logic"""
     def __init__(self, timeout=5):
-        _init()
         super().__init__(sleep, implicit_wait=timeout)
         # print(dir(self))
-
-def _tata(sig, frame):
-    sys.exit(0)
-
-def _init():
-    signal.signal(signal.SIGINT, _tata)
-
-def done():
-    match platform.system():
-        case "Linux":
-            signal.pause()  # type: ignore
-        case "Windows":
-            os.system("pause")
-
 
 async def sleep(timeout):
     # max_range = timeout / 10
