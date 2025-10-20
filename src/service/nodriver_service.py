@@ -85,7 +85,7 @@ class NoDriverService(WebDriverInterface):
         try:
             elements = await self.__page.xpath(value, timeout=action.get('wait', 1))
             await self.__scroll_into_view(value)
-            if not len(elements):
+            if not len(elements) and required:
                 raise Exception(f"Element for {action['type']} action was not found")
 
             return [CustomWebElement(element, self.__page, xpath=value, selector='') for element in elements]
@@ -107,7 +107,7 @@ class NoDriverService(WebDriverInterface):
             my_element = await self.__page.find(value, timeout=wait)
             await self.__scroll_into_view(value)
             if my_element is None and required:
-                raise Exception(f"Element action was not found")
+                raise Exception(f"Element was not found")
 
             if my_element:
                 return CustomWebElement(my_element, self.__page, xpath=xpath, selector=selector)
@@ -232,9 +232,9 @@ class NoDriverService(WebDriverInterface):
         # Execute the script
         return await self.__page.evaluate(scroll_script)
 
-    async def switch_window(self, *args, **kwargs):
+    async def switch_window(self, wait=2, *args, **kwargs):
         """Switch window for pop up opening"""
-        await self.__sleep(2)
+        await self.__sleep(wait)
         tabs = self.__driver.tabs
         if len(tabs) > self.__initial_tab_count:
             new_tab = tabs[-1]

@@ -1,22 +1,18 @@
 import requests
 
-from src.service.util_service import CustomDriver
 from src.service.util_service import *
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 
 # 1. Get the absolute path of the file
-# os.path.abspath(sys.argv[0]) is safe, but os.path.realpath(__file__) is common too.
-# For simplicity in a script:
 full_file_path = os.path.abspath(__file__)
-
 # 2. Get the directory path (the folder the file is in)
 directory_path = os.path.dirname(full_file_path)
 
 logger = get_logger()
 
-class SampleClass:
+class DynamicWebScraping:
     """
     Sample Web Scraping class
     """
@@ -142,7 +138,7 @@ class SampleClass:
 
             required = action.get('required', False)
             if required and not (typeable_input and await typeable_input.is_displayed()):
-                raise Exception(f"The button was not found in the given wait time")
+                raise Exception(f"The input element was not found in the given wait time")
             await self.__driver.type_input(action=action, element=typeable_input)
 
         except Exception as e:
@@ -151,15 +147,16 @@ class SampleClass:
 
     async def _run_dropdown_selection(self, action, *args, **kwargs):
         """
-        select an option from a droption select element
+        select an option from a dropdown option select element
         """
         try:
             xpath = action["xpath"]
+            wait = action.get('wait', 1)
             dropdown_el = await self.__driver.find_element(by=By.XPATH, value=xpath, action=action) # self.__get_element(xpath, action, index, timeout)
-            await sleep(2)
+            await sleep(wait)
             required = action.get('required', False)
             if required and not (dropdown_el and await dropdown_el.is_displayed()):
-                raise Exception(f"The button was not found in the given wait time")
+                raise Exception(f"The dropdown was not found in the given wait time")
             await self.__driver.dropdown_select(action=action, element=dropdown_el)
 
         except Exception as e:
@@ -169,7 +166,7 @@ class SampleClass:
 
 async def main():
     driver = CustomDriver(timeout=10)
-    sample = SampleClass(config, driver)  # config is read in the util file
+    sample = DynamicWebScraping(config, driver)  # config is read in the util file
     await sample.run_actions(config['actions'])
 
 if __name__ == "__main__":

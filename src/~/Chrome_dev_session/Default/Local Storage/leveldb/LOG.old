@@ -1,3 +1,2 @@
-2025/10/19-21:41:59.765 1027a1e Reusing MANIFEST /Users/barryhykesjr/Documents/DynamicWebScraping/src/~/Chrome_dev_session/Default/Local Storage/leveldb/MANIFEST-000001
-2025/10/19-21:41:59.768 1027a1e Recovering log #3
-2025/10/19-21:41:59.769 1027a1e Reusing old log /Users/barryhykesjr/Documents/DynamicWebScraping/src/~/Chrome_dev_session/Default/Local Storage/leveldb/000003.log 
+2025/10/19-22:33:00.056 1036c37 Creating DB /Users/barryhykesjr/Documents/DynamicWebScraping/src/~/Chrome_dev_session/Default/Local Storage/leveldb since it was missing.
+2025/10/19-22:33:00.061 1036c37 Reusing MANIFEST /Users/barryhykesjr/Documents/DynamicWebScraping/src/~/Chrome_dev_session/Default/Local Storage/leveldb/MANIFEST-000001

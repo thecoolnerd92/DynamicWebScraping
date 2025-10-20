@@ -2,6 +2,7 @@
 from abc import ABC, abstractmethod
 
 class WebDriverInterface(ABC):
+    """Web Driver Interface to ensure compatibility with multiple different driver libraries"""
     @abstractmethod
     def get(self, url: str):
         pass

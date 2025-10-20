@@ -1,3 +1,2 @@
-2025/10/19-21:41:59.974 10279f7 Reusing MANIFEST /Users/barryhykesjr/Documents/DynamicWebScraping/src/~/Chrome_dev_session/Default/shared_proto_db/MANIFEST-000001
-2025/10/19-21:41:59.974 10279f7 Recovering log #3
-2025/10/19-21:41:59.975 10279f7 Reusing old log /Users/barryhykesjr/Documents/DynamicWebScraping/src/~/Chrome_dev_session/Default/shared_proto_db/000003.log 
+2025/10/19-22:33:00.427 1036bc3 Creating DB /Users/barryhykesjr/Documents/DynamicWebScraping/src/~/Chrome_dev_session/Default/shared_proto_db since it was missing.
+2025/10/19-22:33:00.430 1036bc3 Reusing MANIFEST /Users/barryhykesjr/Documents/DynamicWebScraping/src/~/Chrome_dev_session/Default/shared_proto_db/MANIFEST-000001
