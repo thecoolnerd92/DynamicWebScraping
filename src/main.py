@@ -166,7 +166,7 @@ class DynamicWebScraping:
 
 async def main():
     driver = CustomDriver(timeout=10)
-    sample = DynamicWebScraping(config, driver)  # config is read in the util file
+    sample = DynamicWebScraping(config, driver)  # config is read in the settings.py file at the top level of the project
     await sample.run_actions(config['actions'])
 
 if __name__ == "__main__":
