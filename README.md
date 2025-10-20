@@ -24,7 +24,8 @@ Set your driver option (selenium or nodriver) in the config (defaults to nodrive
       - requires a lot of custom js code to perform some steps correctly
      
 
-      
+### To Do
+  - complete/ fix unit tests (util and settings are done)
 
 ### Env Setup 
 ```
