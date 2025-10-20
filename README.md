@@ -6,7 +6,7 @@ Usage: python src/main.py <commands>
 ```
 A robust, reusable module for web scraping with the scraping library abstracted 
 away so it can be easily updated/ changed as needed.
-Update the config in the settings.py file to run with a different configuration
+Update the config in the settings.py file to run with a different configuration.
 Set your driver option (selenium or nodriver) in the config (defaults to nodriver)
 
 ### Current Options
