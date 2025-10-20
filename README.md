@@ -15,10 +15,10 @@ Set your driver option (selenium or nodriver) in the config (defaults to nodrive
       - robust library with actions to mimic real user actions
       - simple/ easy to use methods
     - cons
-      - failed incolumitas bot detection challenge
+      - failed pixelscan bot detection check
   - nodriver
     - pros
-      - passes incolumitas bot detection challenge
+      - passes pixelscan bot detection check
     - cons
       - seems to lack some user actions like scrolling to an item on the page
       - requires a lot of custom js code to perform some steps correctly
