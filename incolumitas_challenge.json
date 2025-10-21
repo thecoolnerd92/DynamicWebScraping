@@ -1,14 +1,9 @@
 {
   "debug": true,
+  "url": "https://bot.incolumitas.com/",
+  "wait": 5,
   "driver": "selenium",
   "actions": [
-    {
-      "type": "url",
-      "xpath": "//*[@id='default']/div/div/div/div/section/div[2]/ol",
-      "value": "https://bot.incolumitas.com/",
-      "wait": 5,
-      "debug": true
-    },
     {
       "type": "input",
       "xpath": "//*[@id='userNameField']/div/input",

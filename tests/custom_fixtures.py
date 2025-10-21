@@ -1,6 +1,6 @@
 
 import pytest
-from unittest.mock import patch
+from unittest.mock import patch, AsyncMock, Mock
 import time
 # from reportlab.pdfgen import canvas
 # from reportlab.lib.pagesizes import letter
@@ -63,6 +63,35 @@ def create_general_test_file(tmp_path):
     file = tmp_path / 'file.ext'
     yield file
     file.unlink()
+
+@pytest.fixture(scope="function")
+def mock_uc_start():
+    with patch('src.service.nodriver_service.uc.start') as uc_mock:
+        uc_mock.return_value.stop = Mock()
+        uc_mock.return_value.close = AsyncMock()
+        uc_mock.return_value.get = AsyncMock()
+        uc_mock.return_value.get.return_value.xpath = AsyncMock()
+        uc_mock.return_value.get.return_value.find = AsyncMock()
+        page = AsyncMock()
+        page.evaluate = AsyncMock()
+        page.text = "Original Page"
+        page.url = 'example.com'
+        page.bring_to_front = AsyncMock()
+        uc_mock.return_value.get.return_value = page
+        uc_mock.return_value.tabs = [page]
+        uc_mock.return_value.get_targets.return_value = [page]
+
+        yield uc_mock
+
+@pytest.fixture(scope='function')
+def mock_element():
+    element = AsyncMock()
+    element.attrs.get = Mock()
+    element.click = AsyncMock()
+    element.clear_input = AsyncMock()
+    element.send_keys = AsyncMock()
+
+    yield element
 
 html_fields = {
     'input_fields':"""

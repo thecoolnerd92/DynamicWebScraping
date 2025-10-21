@@ -1,6 +1,7 @@
 import requests
 
 from src.service.util_service import *
+import datetime as dt
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
@@ -21,11 +22,11 @@ class DynamicWebScraping:
         self._logger = logger
         self.__debug_mode = config.get("debug", False)
         self.__driver: CustomDriver = driver_
-        self.download_directory = config.get('download_directory', f'./')
         self.__actions = ActionChains(self.__driver)
         self.path_separator = self.__config.get('separator', '\\')
+        self.download_directory = config.get('download_directory', f'.{self.path_separator}')
 
-    async def __get_driver(self, url):
+    async def get_driver(self, url):
         try:
             await self.__driver.get(url)
 
@@ -47,14 +48,11 @@ class DynamicWebScraping:
 
             self._logger.debug(f'Running {action["type"]} action')
             match action["type"]:
-                case "url": # intiialize the web page
-                    await self.__get_driver(action["value"])
+                case "click": # click an element
+                    await self._run_click_visible_button(action, timeout, index)
 
                 case "download": # download some doc
                     await self._run_download_document(action, timeout, index)
-
-                case "click": # click an element
-                    await self._run_click_visible_button(action, timeout, index)
 
                 case "external_click": # for pop up window
                     await self._run_popup_window(action)
@@ -72,14 +70,18 @@ class DynamicWebScraping:
             await sleep(2)
             self.__driver.close()
 
-    async def _run_popup_window(self, action, timeout, *args, **kwargs):
-
+    async def _run_popup_window(self, action, timeout= 1, *args, **kwargs):
+        """
+        open a pop-up window and then return back to the original page
+        not fully tested
+        """
         curr_page = await self.__driver.switch_window()
         sub_actions = action.get('sub_actions', [])
         await self.run_actions(sub_actions)
-        resume = input('Click enter to return to original window')
-        while self.__driver.get_original_page != curr_page:
-            await sleep(timeout)
+        # resume = input('Click enter to return to original window')
+        # while self.__driver.get_original_page() != curr_page:
+        #     await sleep(timeout)
+
         await sleep(timeout)
         return self.__driver.return_to_original_window()
 
@@ -91,7 +93,7 @@ class DynamicWebScraping:
 
         xpath = action["xpath"]
         element = await self.__driver.find_element(by=By.XPATH, value=xpath, action=action)
-        await self.__driver.click_element(element=element)
+        # await self.__driver.click_element(element=element)
         file_url = element.get_attribute('href')
         filename = f"{download_directory}{self.path_separator}{os.path.basename(file_url)}_{dt.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}"
         try:
@@ -166,8 +168,10 @@ class DynamicWebScraping:
 
 async def main():
     driver = CustomDriver(timeout=10)
-    sample = DynamicWebScraping(config, driver)  # config is read in the settings.py file at the top level of the project
-    await sample.run_actions(config['actions'])
+    web_scraper = DynamicWebScraping(config, driver)  # config is read in the settings.py file at the top level of the project
+    # get driver
+    await web_scraper.get_driver(config["url"])
+    await web_scraper.run_actions(config['actions'])
 
 if __name__ == "__main__":
     from settings import config

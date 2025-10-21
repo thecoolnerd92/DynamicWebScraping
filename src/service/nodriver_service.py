@@ -21,7 +21,6 @@ from nodriver.core.tab import Tab as NodriverPage
 #     uc.loop().run_until_complete(func())
 # import asyncio
 
-
 # @add_sync_wrappers
 class NoDriverService(WebDriverInterface):
     def __init__(self, sleep, implicit_wait=5, *args, **kwargs):
@@ -187,7 +186,6 @@ class NoDriverService(WebDriverInterface):
             logger.info(f"Waiting for option '{option_text}' to be ready...")
             option = await self.__page.find(target_option_xpath, timeout=5)
             target_value = option.attrs.get('value')
-            logger.info("Option is ready.")
             # print('target', option_text, target_value)
             await self.__page.evaluate(selection_script)
             # await self.click_element(element)
@@ -205,7 +203,7 @@ class NoDriverService(WebDriverInterface):
                 """backup select action of it was not selected with page.evaluate"""
                 await element.send_keys(option_text)
                 if not await check_value(target_value, dropdown_xpath):
-                    raise Exception()
+                    raise Exception('Dropdown option could not be selected')
 
             logger.info(f"Successfully selected '{option_text}'.")
             return  # await self.__wait(1)
@@ -214,7 +212,10 @@ class NoDriverService(WebDriverInterface):
             logger.error(f"Dropdown selection error for {option_text} option. {e}")
 
     async def upload(self, value='', element=None, wait=1,  *args, **kwargs):
-        """Upload a document to the website"""
+        """
+        Upload a document to the website
+        <input type="file">
+        """
         try:
             await self.__sleep(wait)
             await element.send_keys(str(value))
@@ -232,19 +233,30 @@ class NoDriverService(WebDriverInterface):
         # Execute the script
         return await self.__page.evaluate(scroll_script)
 
-    async def switch_window(self, wait=2, *args, **kwargs):
-        """Switch window for pop up opening"""
+    async def switch_window(self, tab_url='', wait=2, *args, **kwargs):
+        """Switch window for new pop up opening"""
         await self.__sleep(wait)
-        tabs = self.__driver.tabs
-        if len(tabs) > self.__initial_tab_count:
-            new_tab = tabs[-1]
-            self.__page = await new_tab # .get_page()
-            logger.info(f"Switched to new web page: {self.__page.text}")
-            return self.__page
+        # tabs = self.__driver.tabs
+        targets = await self.__driver.get_targets()
+        # print('len', len(tabs), self.__initial_tab_count)
+        # print(tabs)
+        for target in targets:
+            if tab_url in target.url:
+                #print('target url', target, target.url)
+                # new_tab = tabs[-1]
+                await target.bring_to_front()
+                # self.__page = await tab_url # .get_page()
+                self.__page = target
+                logger.info(f"Switched to new web page: {self.__page.text}")
+                return self.__page
+
+        logger.info(f"Page not found")
+        return self.__page
 
     async def return_to_original_window(self, *args, **kwargs):
         """Return to original window when pop up window closes"""
         await self.__page.close()
+        await self.__original_tab.bring_to_front()
         self.__page = self.__original_tab
         logger.info(f"Returned to original web page: {self.__page.text}")
         return
