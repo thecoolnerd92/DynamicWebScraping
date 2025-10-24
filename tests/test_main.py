@@ -3,9 +3,7 @@ import asyncio
 import pytest
 from unittest.mock import patch, Mock, mock_open, MagicMock, AsyncMock
 from src.main import *
-from custom_fixtures import create_named_test_file, mock_element, mock_uc_start
-from src.service.nodriver_service import CustomWebElement
-from tests.custom_fixtures import xpaths, selectors
+from custom_fixtures import create_named_test_file, mock_element
 # import pickle # Barry
 from settings import *
 
@@ -13,6 +11,24 @@ attr_list = ['id', 'name', 'class', 'href', 'src', 'value', 'style', 'alt', 'inn
 funcs = ['is_displayed', 'is_enabled']
 builtin_values = ['text', 'tag_name', 'size', 'location']
 
+@pytest.fixture(scope="function")
+def mock_uc_start():
+    with patch('src.service.nodriver_service.uc.start') as uc_mock:
+        uc_mock.return_value.stop = Mock()
+        uc_mock.return_value.close = AsyncMock()
+        uc_mock.return_value.get = AsyncMock()
+        uc_mock.return_value.get.return_value.xpath = AsyncMock()
+        uc_mock.return_value.get.return_value.find = AsyncMock()
+        page = AsyncMock()
+        page.evaluate = AsyncMock()
+        page.text = "Original Page"
+        page.url = 'example.com'
+        page.bring_to_front = AsyncMock()
+        uc_mock.return_value.get.return_value = page
+        uc_mock.return_value.tabs = [page]
+        uc_mock.return_value.get_targets.return_value = [page]
+
+        yield uc_mock
 
 @pytest.fixture(scope='function')
 def mock_scraper_class(mock_element):
@@ -22,7 +38,7 @@ def mock_scraper_class(mock_element):
         scraper_mock.find_element.return_value = mock_element
         scraper_mock.click_element = AsyncMock()
         scraper_mock.type_input = AsyncMock()
-        scraper_mock.switch_window = AsyncMock()
+        scraper_mock.open_new_window = AsyncMock()
         scraper_mock.get_original_page = AsyncMock()
         scraper_mock.return_to_original_window = AsyncMock()
         yield scraper_mock
@@ -363,7 +379,7 @@ class TestDynamicWebScraping:
         await my_class.run_actions([action])
 
         assert mock_sleep.call_count == 1
-        mock_scraper_class.switch_window.assert_called_once()
+        mock_scraper_class.open_new_window.assert_called_once()
         mock_scraper_class.return_to_original_window.assert_called_once()
 
     @pytest.mark.asyncio
@@ -447,4 +463,3 @@ class TestDynamicWebScraping:
             with pytest.raises(Exception) as e:
                 await my_class.run_actions([action])
                 assert e.value == 'Get req error'
-

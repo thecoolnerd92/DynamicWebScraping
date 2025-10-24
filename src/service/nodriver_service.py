@@ -1,10 +1,9 @@
 
-import logging
-
 from selenium.common import NoSuchAttributeException
 
 from src.repository.web_driver_interface import WebDriverInterface
 
+import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s',
                     datefmt='%m/%d/%Y %H:%M:%S %Z')
 logger = logging.getLogger(__name__)
@@ -24,6 +23,10 @@ from nodriver.core.tab import Tab as NodriverPage
 # @add_sync_wrappers
 class NoDriverService(WebDriverInterface):
     def __init__(self, sleep, implicit_wait=5, *args, **kwargs):
+        """
+        Initializing nodriver driver class
+        :param sleep: async sleep func, func
+        """
         logger.info(f"Initialized NoDriverClass")
         user_agent = UserAgent().random
         # self.browser_endpoint = "http://localhost:9222"
@@ -211,7 +214,7 @@ class NoDriverService(WebDriverInterface):
         except Exception as e:
             logger.error(f"Dropdown selection error for {option_text} option. {e}")
 
-    async def upload(self, value='', element=None, wait=1,  *args, **kwargs):
+    async def file_upload(self, value='', element=None, wait=1,  *args, **kwargs):
         """
         Upload a document to the website
         <input type="file">
@@ -233,7 +236,7 @@ class NoDriverService(WebDriverInterface):
         # Execute the script
         return await self.__page.evaluate(scroll_script)
 
-    async def switch_window(self, tab_url='', wait=2, *args, **kwargs):
+    async def open_new_window(self, tab_url='', wait=2, *args, **kwargs):
         """Switch window for new pop up opening"""
         await self.__sleep(wait)
         # tabs = self.__driver.tabs
@@ -271,12 +274,14 @@ class NoDriverService(WebDriverInterface):
 class CustomWebElement:
     """
     A custom wrapper class that holds a nodriver element.
+    Adds attributes to mimic selenium attributes for re-usability
     """
     def __init__(self, element: NodriverElement, page: NodriverPage, xpath='', selector=''):
         self._element = element
         self._xpath = xpath.replace('"', "'")
         self._selector = selector
         self._page = page
+        print(dir(self))
 
     def __getattr__(self, name):
         """

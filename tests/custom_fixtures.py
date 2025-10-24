@@ -25,7 +25,7 @@ import time
 #     yield pdf_path
 @pytest.fixture(scope='session')
 def mock_json_load():
-    with patch('settings.json.load') as mock_load:
+    with patch('src.load_config.json.load') as mock_load:
         yield mock_load
 
 @pytest.fixture(scope='session')

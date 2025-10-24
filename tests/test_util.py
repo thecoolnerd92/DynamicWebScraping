@@ -1,3 +1,4 @@
+from lib2to3.pgen2.driver import Driver
 
 import pytest
 
@@ -45,10 +46,11 @@ def mock_write_pickle_file():
 )
 def test_driver_initialization(driver_class):
     """Testing the general CustomDriver Class"""
+    print('driver class', driver_class)
     driver = CustomDriver(driver_class)
     attrs = [
         'get', 'find_element', 'find_elements', 'click_element', 'type_input',
-        'dropdown_select', 'upload', 'switch_window', 'return_to_original_window',
+        'dropdown_select', 'file_upload', 'open_new_window', 'return_to_original_window',
         'close'
     ]
     assert all(hasattr(driver, attr) for attr in attrs)

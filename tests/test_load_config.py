@@ -1,7 +1,7 @@
 import pytest
 from custom_fixtures import create_named_test_file, mock_json_load
 
-from settings import _load_json
+from src.load_config import load_json
 import json
 
 class TestLoadJson:
@@ -12,9 +12,10 @@ class TestLoadJson:
     )
     def test_load_json_success(self, create_named_test_file, mock_json_load):
         # mock_json_load.return_value = {}
+        # mock_json_load.return_value = {}
         my_file = create_named_test_file
         mock_json_load.return_value = {}
-        res = _load_json(my_file)
+        res = load_json(my_file)
         assert res == {}
         assert mock_json_load.is_called_once_with('')
 
@@ -27,7 +28,7 @@ class TestLoadJson:
         mock_json_load.side_effect = FileNotFoundError('File not found')
         with pytest.raises(Exception) as e:
             my_file = create_named_test_file
-            _load_json(my_file)
+            load_json(my_file)
             assert e.value == 'File not found'
 
     @pytest.mark.parametrize(
@@ -39,7 +40,7 @@ class TestLoadJson:
         mock_json_load.side_effect = json.JSONDecodeError('Invalid JSON', 'json_string', 0)
         with pytest.raises(Exception) as e:
             my_file = create_named_test_file
-            _load_json(my_file)
+            load_json(my_file)
             assert e.value == 'Invalid JSON'
 
     @pytest.mark.parametrize(
@@ -51,5 +52,5 @@ class TestLoadJson:
         mock_json_load.side_effect = Exception('Unknown Exception')
         with pytest.raises(Exception) as e:
             my_file = create_named_test_file
-            _load_json(my_file)
+            load_json(my_file)
             assert e.value == 'Unknown Exception'

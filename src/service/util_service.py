@@ -8,7 +8,7 @@ import asyncio
 # import time
 import random
 
-from settings import PROJECT_ROOT
+from settings import PROJECT_ROOT, config
 # import distutils
 
 def get_logger(name="app", level=logging.INFO):
@@ -24,11 +24,8 @@ def get_logger(name="app", level=logging.INFO):
 
 logger = get_logger(__name__)
 import sys
-import platform
 import os
 
-import signal
-from settings import config
 from src.service.nodriver_service import NoDriverService
 from src.service.selenium_service import SeleniumUndetectableDriverService
 
@@ -47,8 +44,8 @@ class CustomDriver(MyDriver):
 
 async def sleep(timeout):
     # max_range = timeout / 10
-    min_range = .9 * timeout
-    random_num = random.uniform(min_range, timeout)
+    max_range = timeout + (.1 * timeout)
+    random_num = random.uniform(timeout, max_range)
     # sleep = timeout + random_num
     # time.sleep(random_num)
     await asyncio.sleep(random_num)

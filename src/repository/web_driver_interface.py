@@ -8,10 +8,6 @@ class WebDriverInterface(ABC):
         pass
 
     @abstractmethod
-    def get_original_page(self):
-        pass
-
-    @abstractmethod
     def find_elements(self, value: str, by: str, action: dict):
         pass
 
@@ -32,11 +28,11 @@ class WebDriverInterface(ABC):
         pass
 
     @abstractmethod
-    def upload(self, value: str, element: any):
+    def file_upload(self, value: str, element: any):
         pass
 
     @abstractmethod
-    def switch_window(self):
+    def open_new_window(self):
         pass
 
     @abstractmethod

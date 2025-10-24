@@ -3,21 +3,36 @@ import asyncio
 import pytest
 from unittest.mock import patch, Mock, AsyncMock
 
-from custom_fixtures import mock_element, mock_uc_start
+from custom_fixtures import mock_element
 from src.service.nodriver_service import NoDriverService
 from tests.custom_fixtures import xpaths, selectors
 
-@pytest.fixture(scope='session')
-def mock_sleep():
-    with patch('src.service.nodriver_service') as sleep_mock:
-        sleep_mock = AsyncMock()
-        yield sleep_mock
+
+@pytest.fixture(scope="function")
+def mock_uc_start():
+    with patch('src.service.nodriver_service.uc.start') as uc_mock:
+        uc_mock.return_value.stop = Mock()
+        uc_mock.return_value.close = AsyncMock()
+        uc_mock.return_value.get = AsyncMock()
+        uc_mock.return_value.get.return_value.xpath = AsyncMock()
+        uc_mock.return_value.get.return_value.find = AsyncMock()
+        page = AsyncMock()
+        page.evaluate = AsyncMock()
+        page.text = "Original Page"
+        page.url = 'example.com'
+        page.bring_to_front = AsyncMock()
+        uc_mock.return_value.get.return_value = page
+        uc_mock.return_value.tabs = [page]
+        uc_mock.return_value.get_targets.return_value = [page]
+
+        yield uc_mock
 
 class TestNoDriverService:
     @pytest.mark.asyncio
-    async def test_nodriver_service_get(self, mock_uc_start, mock_sleep):
+    async def test_nodriver_service_get(self, mock_uc_start):
         """driver initialization"""
         url = 'https://www.google.com'
+        mock_sleep = AsyncMock()
         driver = NoDriverService(mock_sleep)
         await driver.get(url)
 
@@ -26,9 +41,10 @@ class TestNoDriverService:
         assert mock_sleep.is_called()
 
     @pytest.mark.asyncio
-    async def test_nodriver_service_get_original_page(self, mock_uc_start, mock_sleep):
+    async def test_nodriver_service_get_original_page(self, mock_uc_start):
         """test getting the original page/ tab/ window"""
         url = 'https://www.google.com'
+        mock_sleep = AsyncMock()
         driver = NoDriverService(mock_sleep)
         await driver.get(url)
         res = driver.get_original_page()
@@ -37,9 +53,10 @@ class TestNoDriverService:
         assert mock_sleep.is_called()
 
     @pytest.mark.asyncio
-    async def test_nodriver_service_get_page(self, mock_uc_start, mock_sleep):
+    async def test_nodriver_service_get_page(self, mock_uc_start):
         """test getting the current page/ tab/ window"""
         url = 'https://www.google.com'
+        mock_sleep = AsyncMock()
         driver = NoDriverService(mock_sleep)
         await driver.get(url)
         res = driver.get_original_page()
@@ -48,10 +65,11 @@ class TestNoDriverService:
         assert mock_sleep.is_called()
 
     @pytest.mark.asyncio
-    async def test_find_elements(self, mock_uc_start, mock_sleep, mock_element):
+    async def test_find_elements(self, mock_uc_start, mock_element):
         value = xpaths['email_input']
         elements = [mock_element]
 
+        mock_sleep = AsyncMock()
         url = 'https://www.google.com'
         driver = NoDriverService(mock_sleep)
         page = await driver.get(url)
@@ -65,10 +83,11 @@ class TestNoDriverService:
         assert page.evaluate.call_count == len(elements)
 
     @pytest.mark.asyncio
-    async def test_find_elements_exception_caught(self, mock_uc_start, mock_sleep):
+    async def test_find_elements_exception_caught(self, mock_uc_start):
         value = selectors['uname_input']
         action = {'type': 'click', 'selector': selectors['uname_input']}
 
+        mock_sleep = AsyncMock()
         url = 'https://www.google.com'
         driver = NoDriverService(mock_sleep)
         page = await driver.get(url)
@@ -80,9 +99,10 @@ class TestNoDriverService:
             assert e.value == f"Element for {action['type']} action was not found"
 
     @pytest.mark.asyncio
-    async def test_find_element(self, mock_uc_start, mock_sleep):
+    async def test_find_element(self, mock_uc_start):
         value = xpaths['email_input']
 
+        mock_sleep = AsyncMock()
         url = 'https://www.google.com'
         driver = NoDriverService(mock_sleep)
         page = await driver.get(url)
@@ -96,10 +116,11 @@ class TestNoDriverService:
         assert page.evaluate.is_called_with(value)
 
     @pytest.mark.asyncio
-    async def test_find_element_exception_caught(self, mock_uc_start, mock_sleep):
+    async def test_find_element_exception_caught(self, mock_uc_start):
         value = selectors['uname_input']
         action = {'type': 'click', 'selector': selectors['uname_input']}
 
+        mock_sleep = AsyncMock()
         url = 'https://www.google.com'
         driver = NoDriverService(mock_sleep)
         page = await driver.get(url)
@@ -111,9 +132,10 @@ class TestNoDriverService:
             assert e.value == f"Element for {action['type']} action was not found"
 
     @pytest.mark.asyncio
-    async def test_click_element(self, mock_uc_start, mock_sleep, mock_element):
+    async def test_click_element(self, mock_uc_start, mock_element):
         value = xpaths['email_input']
 
+        mock_sleep = AsyncMock()
         url = 'https://www.google.com'
         driver = NoDriverService(mock_sleep)
         page = await driver.get(url)
@@ -127,9 +149,10 @@ class TestNoDriverService:
         assert mock_sleep.is_called()
 
     @pytest.mark.asyncio
-    async def test_type_input(self, mock_uc_start, mock_sleep, mock_element):
+    async def test_type_input(self, mock_uc_start, mock_element):
         value = xpaths['email_input']
 
+        mock_sleep = AsyncMock()
         url = 'https://www.google.com'
         driver = NoDriverService(mock_sleep)
         page = await driver.get(url)
@@ -149,9 +172,10 @@ class TestNoDriverService:
         assert mock_sleep.is_called()
 
     @pytest.mark.asyncio
-    async def test_dropdown_select(self, mock_uc_start, mock_sleep, mock_element):
+    async def test_dropdown_select(self, mock_uc_start, mock_element):
         value = xpaths['email_input']
 
+        mock_sleep = AsyncMock()
         url = 'https://www.google.com'
         driver = NoDriverService(mock_sleep)
         page = await driver.get(url)
@@ -173,9 +197,10 @@ class TestNoDriverService:
         assert mock_sleep.is_called()
 
     @pytest.mark.asyncio
-    async def test_dropdown_select_exception(self, mock_uc_start, mock_sleep, mock_element):
+    async def test_dropdown_select_exception(self, mock_uc_start, mock_element):
         value = xpaths['email_input']
 
+        mock_sleep = AsyncMock()
         url = 'https://www.google.com'
         driver = NoDriverService(mock_sleep)
         page = await driver.get(url)
@@ -194,9 +219,10 @@ class TestNoDriverService:
             assert e.value == 'Dropdown option could not be selected'
 
     @pytest.mark.asyncio
-    async def test_upload_success(self, mock_uc_start, mock_sleep, mock_element):
+    async def test_upload_success(self, mock_uc_start, mock_element):
         value = 'path/to/some/file.txt'
 
+        mock_sleep = AsyncMock()
         url = 'https://www.google.com'
         driver = NoDriverService(mock_sleep)
         page = await driver.get(url)
@@ -208,15 +234,16 @@ class TestNoDriverService:
         page.find.return_value = test_element
 
         # await driver.find_element(value=value)
-        await driver.upload(action={'value': value}, element=test_element)
+        await driver.file_upload(action={'value': value}, element=test_element)
 
         assert test_element.send_keys.is_called_with(value)
         assert mock_sleep.is_called()
 
     @pytest.mark.asyncio
-    async def test_upload_exception_raised(self, mock_uc_start, mock_sleep, mock_element):
+    async def test_upload_exception_raised(self, mock_uc_start, mock_element):
         value = 'path/to/some/file.txt'
 
+        mock_sleep = AsyncMock()
         url = 'https://www.google.com'
         driver = NoDriverService(mock_sleep)
         page = await driver.get(url)
@@ -231,14 +258,15 @@ class TestNoDriverService:
         test_element.send_keys.side_effect = Exception('File upload issue')
         with pytest.raises(Exception) as e:
 
-            await driver.upload(action={'value': value}, element=test_element)
+            await driver.file_upload(action={'value': value}, element=test_element)
             assert e.value == 'File upload issue'
             assert mock_sleep.is_called()
 
     @pytest.mark.asyncio
     @patch('src.service.nodriver_service.logger')
-    async def test_switch_window(self, mock_logger, mock_uc_start, mock_sleep):
+    async def test_switch_window(self, mock_logger, mock_uc_start):
 
+        mock_sleep = AsyncMock()
         url = 'https://www.google.com'
         driver = NoDriverService(mock_sleep)
         page1 = AsyncMock()
@@ -252,7 +280,7 @@ class TestNoDriverService:
         page = await driver.get(url)
         mock_uc_start.return_value.get_targets.return_value = [page, page1, page2]
 
-        await driver.switch_window(tab_url='example2.com')
+        await driver.open_new_window(tab_url='example2.com')
         page2.bring_to_front.assert_called()
 
         mock_logger.info.assert_called_with(f"Switched to new web page: {page2.text}")
@@ -260,8 +288,9 @@ class TestNoDriverService:
 
     @pytest.mark.asyncio
     @patch('src.service.nodriver_service.logger')
-    async def test_return_to_original_window(self, mock_logger, mock_uc_start, mock_sleep):
+    async def test_return_to_original_window(self, mock_logger, mock_uc_start):
 
+        mock_sleep = AsyncMock()
         url = 'https://www.google.com'
         driver = NoDriverService(mock_sleep)
         page1 = AsyncMock()
@@ -281,11 +310,11 @@ class TestNoDriverService:
         mock_logger.info.assert_called_with(f"Returned to original web page: {page.text}")
 
     @pytest.mark.asyncio
-    async def test_close(self, mock_uc_start, mock_sleep):
+    async def test_close(self, mock_uc_start):
+        mock_sleep = AsyncMock()
         driver = NoDriverService(mock_sleep)
         await driver.get('example.com')
 
         await driver.close()
         assert mock_uc_start.close.is_called_once()
         assert mock_uc_start.stop.is_called_once()
-

@@ -1,5 +1,4 @@
 from src.repository.web_driver_interface import WebDriverInterface
-from src.service.util_service import get_logger
 
 from selenium.webdriver.chrome.options import Options
 from undetected_chromedriver import Chrome, ChromeOptions
@@ -13,10 +12,16 @@ from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.wait import WebDriverWait
 
 import json
-logger = get_logger(__name__)
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s',
+                    datefmt='%m/%d/%Y %H:%M:%S %Z')
+logger = logging.getLogger(__name__)
 
 class SeleniumUndetectableDriverService(WebDriverInterface):
     def __init__(self, sleep, timeout=5, *args, **kwargs):
+        """
+        Initializing selenium undetectable chrome driver
+        :param sleep: async sleep func, func"""
         logger.info(f"Initialized SeleniumUndetectableDriver")
         try:
             options = Options() # ChromeOptions() # webdriver.ChromeOptions()
@@ -58,15 +63,24 @@ class SeleniumUndetectableDriverService(WebDriverInterface):
 
 
     async def get(self, url):
+        """
+        fetch the desired web page
+        :param url: url to fetch, str
+        :return self.__driver: the driver with the fetched web page
+        """
         await self.__sleep(1)
         self.__driver.get(url)
         self.__original_window = self.__driver.current_window_handle
         return self.__driver
 
-    def get_original_page(self):
-        return self.__original_window
-
     async def find_elements(self, by=By.XPATH, value='', action={}, timeout=15, required=True, *args, **kwargs):
+        """
+        Find elements matching the value selector
+        :param value: html selector/ xpath, vtr
+        :param by: type of selector, str
+        :param required: whether the element is required to be in the document, boolean
+        :return elements: array of found elements, list
+        """
         wait = action.get('wait', .5)
         await self.__sleep(wait)
         try:
@@ -86,6 +100,10 @@ class SeleniumUndetectableDriverService(WebDriverInterface):
             raise
 
     async def find_element(self, by=By.XPATH, value='', action={}, timeout=4, required=True, *args, **kwargs):
+        """
+        Find the first element matching the value selector
+        :return element: first found html element, nodriver.core.element.Element
+        """
         wait = action.get('wait', .5)
         await self.__sleep(wait)
         try:
@@ -108,8 +126,7 @@ class SeleniumUndetectableDriverService(WebDriverInterface):
                 return None
 
     async def click_element(self, element=None, timeout=5, required=True, *args, **kwargs):
-        """selenium has additional actions that need to be performed for bot detection"""
-
+        """Click element using actions"""
         try:
             WebDriverWait(self.__driver, timeout).until(
                 EC.element_to_be_clickable(element)
@@ -145,43 +162,42 @@ class SeleniumUndetectableDriverService(WebDriverInterface):
         wait = action.get('wait', .5)
         try:
             await self.__sleep(wait)
-            await self.click_element(element, *args, **kwargs)
+            await self.click_element(element)
             await self.__sleep(wait)
             select = Select(element)
 
             await self.__sleep(wait)
             select.select_by_visible_text(action.get("value", ""))
-            await self.click_element(element, *args, **kwargs)
+            await self.click_element(element)
 
         except Exception as e:
             logger.error(f"Dropdown selection error. {e}")
 
-    async def upload(self, value='', element=None, wait=1, *args, **kwargs):
-        """Upload a document to the website"""
+    async def file_upload(self, value='', element=None, wait=1, *args, **kwargs):
+        """
+        Upload a document to the website
+        <input type="file">
+        """
         try:
             await self.__sleep(wait)
             await element.send_keys(str(value))
         except Exception as e:
             logger.error(f'Error uploading file: {e}')
 
-    async def switch_window(self, wait=2, *args, **kwargs):
+    async def open_new_window(self, wait=2, *args, **kwargs):
         """Switch window for pop up opening"""
         await self.__sleep(wait)
-        all_windows = self.__driver.window_handles
-
-        # 5. Loop through handles to find the new one and switch
-        for window in all_windows:
-            if window != self.__original_window:
-                self.__driver.switch_to.window(window)
-                logger.info(f"Switched to new web page: {window}")
-                break
+        new_window = self.__driver.window_handles[-1]
+        if new_window != self.__original_window:
+            self.__driver.switch_to.window(new_window)
+            logger.info(f"Switched to new web page: {new_window}")
 
     async def return_to_original_window(self, *args, **kwargs):
         """Return to original window when pop up window closes"""
         current_window = self.__driver.current_window_handle
         self.__driver.close()
         if current_window != self.__original_window:
-            self.__driver.switch_to.window(self.__original_window).switch_to.window(self.__original_window)
+            self.__driver.switch_to.window(self.__original_window)
             logger.info(f"Returned to original web page: {self.__original_window}")
 
     def close(self):

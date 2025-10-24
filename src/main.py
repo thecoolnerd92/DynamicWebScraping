@@ -75,7 +75,7 @@ class DynamicWebScraping:
         open a pop-up window and then return back to the original page
         not fully tested
         """
-        curr_page = await self.__driver.switch_window()
+        curr_page = await self.__driver.open_new_window()
         sub_actions = action.get('sub_actions', [])
         await self.run_actions(sub_actions)
         # resume = input('Click enter to return to original window')
